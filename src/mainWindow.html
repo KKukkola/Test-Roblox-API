@@ -44,6 +44,21 @@
         function minimizeWindow(e){
             ipcRenderer.send('app:minimize');
         }
+
+        // Testing  GET/POST
+        const Http = new XMLHttpRequest();
+        const url = 'https://users.roblox.com/v1/users/54374400';//'https://jsonplaceholder.typicode.com/posts';
+        Http.open("GET", url);
+        Http.send();
+        Http.onreadystatechange = (e) => {
+            if (this.readState == 4 && this.status == 200) {
+                var responseJsonObj = JSON.parse(this.responseText);
+                console.log( responseJsonObj );
+            }
+
+        }
+
     </script>
+    
 </body>
 </html>
