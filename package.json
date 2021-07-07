@@ -1,0 +1,14 @@
+{
+  "name": "roblox-test",
+  "version": "1.0.0",
+  "description": "interacting with the roblox api",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron ."
+  },
+  "author": "Noqk",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^13.1.6"
+  }
+}
