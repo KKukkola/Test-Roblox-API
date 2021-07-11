@@ -28,6 +28,12 @@
         const {ipcRenderer} = electron; 
         const ul = document.getElementById('ul-item-list');
 
+        ipcRenderer.on('user:add', function(e, item){
+            console.log("user:add");
+
+            // In here I want to use a template and add that to the page
+        })
+
         ipcRenderer.on('update', function(e, item){
             const Http = new XMLHttpRequest();
             //const url = 'https://users.roblox.com/v1/users/54374400';//'https://jsonplaceholder.typicode.com/posts';
