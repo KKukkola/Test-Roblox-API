@@ -28,8 +28,20 @@
         const {ipcRenderer} = electron; 
         const ul = document.getElementById('ul-item-list');
 
-        ipcRenderer.on('item:add', function(e, item){
-           // Communicating with the main thread
+        ipcRenderer.on('update', function(e, item){
+            const Http = new XMLHttpRequest();
+            //const url = 'https://users.roblox.com/v1/users/54374400';//'https://jsonplaceholder.typicode.com/posts';
+            const url = 'https://api.roblox.com/users/54374400/onlinestatus/';
+            Http.open("GET", url);
+            Http.send();
+            Http.onreadystatechange = (e) => {
+                console.log('http state change');
+                console.log(Http.readyState, Http.status);
+                if (Http.readyState == 4 && Http.status == 200) {
+                    var responseJsonObj = JSON.parse(Http.responseText);
+                    console.log( responseJsonObj );
+                }
+            }
         });
 
         document.getElementById('x-div').onclick = closeWindow;
@@ -55,8 +67,9 @@
                 var responseJsonObj = JSON.parse(this.responseText);
                 console.log( responseJsonObj );
             }
-
         }
+
+        console.log('script ran');
 
     </script>
     

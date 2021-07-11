@@ -62,7 +62,8 @@ const mainMenuTemplate = [
             label: 'Add Item',
             accelerator: "Shift+A",
             click(){
-                createAddWindow();
+                mainWindow.webContents.send('update');
+                //createAddWindow();
             }
         },
         {
