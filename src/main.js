@@ -68,8 +68,11 @@ function createAddWindow(){
     });
 }
 
+ipcMain.on('user:add', (event, arg) => {
+    mainWindow.webContents.send('user:add', arg);
+    addWindow.close();
+})
 
-// Catch app:minimize
 ipcMain.on('app:close', (event, arg) => {
     app.quit();
 })

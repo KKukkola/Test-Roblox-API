@@ -5,10 +5,28 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+    <div class="container">
+        <form>
+            <div>
+                <label>Enter Id</label>
+                <input type="text" id="item" autofocus>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
 
     <script>
-        
+        const electron = require('electron');
+        const {ipcRenderer} = electron; // sends item to main.js
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', submitForm);
+
+        function submitForm(e) {
+            e.preventDefault();
+            const item = document.querySelector('#item').value;
+            ipcRenderer.send('user:add', item); // from client to server kinda. socket.io
+        }
     </script>
 </body>
 </html>

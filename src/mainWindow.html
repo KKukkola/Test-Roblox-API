@@ -7,8 +7,13 @@
     <link rel="stylesheet" href="styles.css">
 
     <template id="user-template">
-        <div class="title">
-            abcef
+        <div>
+            <div class="title">
+                abcef
+            </div>
+            <div class="namee">
+                namee
+            </div>
         </div>
     </template>
 
@@ -39,20 +44,32 @@
         const div_users = document.getElementById('users-div');
         const user_template = document.getElementById('user-template');
         
-        ipcRenderer.on('user:add', function(e, item){
-            console.log("user:add");
+        ipcRenderer.on('user:add', function(e, id){
             
-            // Create an instance
+            // Create the instance
+
             const instance = document.importNode(user_template.content, true);
-            // Add content
-            instance.querySelector('.title').innerHTML = "title goes here";
-            // Append 
+            instance.querySelector('.title').innerHTML = id;
             div_users.appendChild(instance);
+
+            // Update with site information
+
+            const Http = new XMLHttpRequest();
+            const url = 'https://users.roblox.com/v1/users/54374400';
+            Http.open("GET", url);
+            Http.send();
+            Http.onreadystatechange = (e) => {
+                if (Http.readyState == 4 && Http.status == 200) {
+                    var responseJsonObj = JSON.parse(Http.responseText);
+                    console.log(responseJsonObj.name)
+                    console.log(instance.querySelector('.namee'));
+                    //instance.querySelector('.name').innerHTML = responseJsonObj.name;
+                }
+            }
         })
 
         ipcRenderer.on('update', function(e, item){
             const Http = new XMLHttpRequest();
-            //const url = 'https://users.roblox.com/v1/users/54374400';//'https://jsonplaceholder.typicode.com/posts';
             const url = 'https://api.roblox.com/users/54374400/onlinestatus/';
             Http.open("GET", url);
             Http.send();
@@ -61,7 +78,7 @@
                 console.log(Http.readyState, Http.status);
                 if (Http.readyState == 4 && Http.status == 200) {
                     var responseJsonObj = JSON.parse(Http.responseText);
-                    console.log( responseJsonObj );
+                    console.log(responseJsonObj);
                 }
             }
         });
