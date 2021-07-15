@@ -5,6 +5,13 @@
     <title>ListTestApp</title>
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
     <link rel="stylesheet" href="styles.css">
+
+    <template id="user-template">
+        <div class="title">
+            abcef
+        </div>
+    </template>
+
 </head>
 <body style="margin:0">
     <nav>
@@ -22,16 +29,25 @@
             </ul>
         </div>
     </nav>
+    <div id="users-div">
+        
+    </div>
     
     <script>
         const electron = require('electron');
         const {ipcRenderer} = electron; 
-        const ul = document.getElementById('ul-item-list');
-
+        const div_users = document.getElementById('users-div');
+        const user_template = document.getElementById('user-template');
+        
         ipcRenderer.on('user:add', function(e, item){
             console.log("user:add");
-
-            // In here I want to use a template and add that to the page
+            
+            // Create an instance
+            const instance = document.importNode(user_template.content, true);
+            // Add content
+            instance.querySelector('.title').innerHTML = "title goes here";
+            // Append 
+            div_users.appendChild(instance);
         })
 
         ipcRenderer.on('update', function(e, item){

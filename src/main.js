@@ -43,6 +43,32 @@ app.on('ready', function(){
     Menu.setApplicationMenu(mainMenu);
 })
 
+function createAddWindow(){
+    // Create new window
+    addWindow = new BrowserWindow({
+        width: 300,
+        height: 200,
+        title: 'Add a user:',
+        webPreferences:{
+            nodeIntegration: true,
+            contextIsolation: false,
+        }
+    });
+    // Load html into window
+    // Basically just passing in path to loadURL
+    // Like so: file://dirname/mainWindow.html
+    addWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'addWindow.html'),
+        protocol:'file:', 
+        slashes: true,
+    }));
+    // Garbage collection handle
+    addWindow.on('closed', function(){
+        addWindow = null;
+    });
+}
+
+
 // Catch app:minimize
 ipcMain.on('app:close', (event, arg) => {
     app.quit();
@@ -62,8 +88,15 @@ const mainMenuTemplate = [
             label: 'Add Item',
             accelerator: "Shift+A",
             click(){
-                mainWindow.webContents.send('user:add');
-                //createAddWindow();
+                //mainWindow.webContents.send('user:add');
+                createAddWindow();
+            }
+        },
+        {
+            label: 'update',
+            accelerator: "Shift+B",
+            click(){
+                mainWindow.webContents.send('update');
             }
         },
         {
