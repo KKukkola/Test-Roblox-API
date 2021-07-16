@@ -8,11 +8,12 @@
 
     <template id="user-template">
         <div>
-            <div class="title">
-                abcef
+            <img class="user-status" src="" alt="status" ></img>
+            <div class="user-id">
+                waiting..
             </div>
-            <div class="namee">
-                namee
+            <div class="user-name">
+                waiting..
             </div>
         </div>
     </template>
@@ -44,28 +45,47 @@
         const div_users = document.getElementById('users-div');
         const user_template = document.getElementById('user-template');
         
+        let usersList = [];
+
+        //***************************************************
+
         ipcRenderer.on('user:add', function(e, id){
             
             // Create the instance
 
             const instance = document.importNode(user_template.content, true);
-            instance.querySelector('.title').innerHTML = id;
+            const title = instance.querySelector('.user-id');
+            const name = instance.querySelector('.user-name');
+            const status = instance.querySelector('.user-status');
+
+            title.id = "user-id-" + String(id);
+            name.id = "user-name-" + String(id);
+            status.id = "user-status-" + String(id);
+
             div_users.appendChild(instance);
 
             // Update with site information
 
             const Http = new XMLHttpRequest();
-            const url = 'https://users.roblox.com/v1/users/54374400';
+            const url = `https://users.roblox.com/v1/users/${id}`;
             Http.open("GET", url);
             Http.send();
             Http.onreadystatechange = (e) => {
                 if (Http.readyState == 4 && Http.status == 200) {
                     var responseJsonObj = JSON.parse(Http.responseText);
-                    console.log(responseJsonObj.name)
-                    console.log(instance.querySelector('.namee'));
-                    //instance.querySelector('.name').innerHTML = responseJsonObj.name;
+                    title.innerHTML = id;
+                    name.innerHTML = responseJsonObj.name;
                 }
             }
+            
+            // Add object to the list of users
+
+            const thisUser = {id:id};
+            usersList.push(thisUser);
+
+            // Update it
+
+            UpdateUser(id);
         })
 
         ipcRenderer.on('update', function(e, item){
@@ -83,33 +103,42 @@
             }
         });
 
+        //***************************************************
+        
+        function closeWindow(e){ ipcRenderer.send('app:close'); }
+        function minimizeWindow(e){ ipcRenderer.send('app:minimize'); }
+        
         document.getElementById('x-div').onclick = closeWindow;
         document.getElementById('min-div').onclick = minimizeWindow;
-        
-        // Close window
-        function closeWindow(e){
-            ipcRenderer.send('app:close');
-        }
 
-        // Minimize window
-        function minimizeWindow(e){
-            ipcRenderer.send('app:minimize');
-        }
-
-        // Testing  GET/POST
-        const Http = new XMLHttpRequest();
-        const url = 'https://users.roblox.com/v1/users/54374400';//'https://jsonplaceholder.typicode.com/posts';
-        Http.open("GET", url);
-        Http.send();
-        Http.onreadystatechange = (e) => {
-            if (this.readState == 4 && this.status == 200) {
-                var responseJsonObj = JSON.parse(this.responseText);
-                console.log( responseJsonObj );
+        //***************************************************
+        // 107904089 54374400
+        function UpdateUser(id){
+            const Http = new XMLHttpRequest();
+            const url = `https://api.roblox.com/users/${id}/onlinestatus/`;
+            Http.open("GET", url);
+            Http.send();
+            Http.onreadystatechange = (e) => {
+                if (Http.readyState == 4 && Http.status == 200) {
+                    var responseJsonObj = JSON.parse(Http.responseText);
+                    const statusElem = document.getElementById("user-status-" + String(id));
+                    if (responseJsonObj.IsOnline)
+                        statusElem.src = "./assets/icons/png/ingame.png";
+                    else
+                        statusElem.src = "";
+                }
             }
         }
 
-        console.log('script ran');
+        function UpdateUsers(){
+            usersList.forEach((userObj) => {
+                //console.log(userObj.id);
+                UpdateUser(userObj.id);
+            });
+        }
 
+        setInterval(UpdateUsers, 2000);
+    
     </script>
     
 </body>
