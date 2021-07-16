@@ -123,9 +123,9 @@
                     var responseJsonObj = JSON.parse(Http.responseText);
                     const statusElem = document.getElementById("user-status-" + String(id));
                     if (responseJsonObj.IsOnline)
-                        statusElem.src = "./assets/icons/png/ingame.png";
+                        statusElem.src = "./assets/icons/png/onweb.png";
                     else
-                        statusElem.src = "";
+                        statusElem.src = "./assets/icons/png/offline.png";
                 }
             }
         }
