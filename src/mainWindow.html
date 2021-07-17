@@ -49,8 +49,6 @@
 
         //***************************************************
 
-        
-
         ipcRenderer.on('user:add', function(e, id){
             ipcRenderer.invoke('DB:HasID', id).then((result) => {
                 if (result == true) {
@@ -63,26 +61,10 @@
         })
 
         ipcRenderer.on('update', function(e, item){
-
             const id = 107904089;
-            ipcRenderer.invoke('DB:GetIDs', id).then((result) => {
+            ipcRenderer.invoke('DB:GetIDs', null).then((result) => {
                 console.log(result);
             })
-            
-
-            // const Http = new XMLHttpRequest();
-            // // 107904089 54374400
-            // const url = 'https://api.roblox.com/users/107904089/onlinestatus/';
-            // Http.open("GET", url);
-            // Http.send();
-            // Http.onreadystatechange = (e) => {
-            //     console.log('http state change');
-            //     console.log(Http.readyState, Http.status);
-            //     if (Http.readyState == 4 && Http.status == 200) {
-            //         var responseJsonObj = JSON.parse(Http.responseText);
-            //         console.log(responseJsonObj);
-            //     }
-            // }
         });
 
         function NewUserTemplate(id) {
@@ -137,6 +119,16 @@
         
         document.getElementById('x-div').onclick = closeWindow;
         document.getElementById('min-div').onclick = minimizeWindow;
+
+        //***************************************************
+
+        ipcRenderer.invoke('DB:GetIDs', null).then((result) => {
+            console.log(result);
+            result.forEach((id) => {
+                let tmp = NewUserTemplate(id);
+                TryUpdateUserTemplate(tmp);
+            })
+        })
 
         //***************************************************
         // 107904089 54374400

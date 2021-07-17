@@ -61,6 +61,11 @@ exports.GetIDs = function() {
         return [];
     
     const ids = fs.readFileSync(filePath, {encoding:'utf8', flag:'r'});
+
+    if (ids.length == 0)
+        return [];
+    
     const result = ids.split(',');
+    result.pop(); // Because it's going to be #,#,#,#, with trailing comma
     return result;
 }
