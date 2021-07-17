@@ -41,7 +41,7 @@
     
     <script>
         const electron = require('electron');
-        const {ipcRenderer} = electron; 
+        const {app, ipcRenderer} = electron; 
         const div_users = document.getElementById('users-div');
         const user_template = document.getElementById('user-template');
         
@@ -69,23 +69,30 @@
             const Http = new XMLHttpRequest();
             const url = `https://users.roblox.com/v1/users/${id}`;
             Http.open("GET", url);
-            Http.send();
-            Http.onreadystatechange = (e) => {
-                if (Http.readyState == 4 && Http.status == 200) {
+            Http.onloadend = (e) => {
+                if (Http.status == 404) {
+                    console.log(url + " replied 404");
+                } else if (Http.readyState == 4 && Http.status == 200) {
                     var responseJsonObj = JSON.parse(Http.responseText);
                     title.innerHTML = id;
                     name.innerHTML = responseJsonObj.name;
+
+                    // Add object to the list of users
+            
+                    const thisUser = {id:id};
+                    usersList.push(thisUser);
+
+                    // Update it
+                    
+                    UpdateUser(id);
+
+                    ipcRenderer.invoke('DB:InsertID', id).then((result) =>{
+                        console.log("ipc child process got result: ", result);
+                    })
                 }
             }
+            Http.send();
             
-            // Add object to the list of users
-
-            const thisUser = {id:id};
-            usersList.push(thisUser);
-
-            // Update it
-
-            UpdateUser(id);
         })
 
         ipcRenderer.on('update', function(e, item){
@@ -113,13 +120,16 @@
 
         //***************************************************
         // 107904089 54374400
+
         function UpdateUser(id){
             const Http = new XMLHttpRequest();
             const url = `https://api.roblox.com/users/${id}/onlinestatus/`;
             Http.open("GET", url);
-            Http.send();
+            
             Http.onreadystatechange = (e) => {
-                if (Http.readyState == 4 && Http.status == 200) {
+                if (Http.status == 404) {
+                    throw new Error(url + ' replied 404');
+                } else if (Http.readyState == XMLHttpRequest.DONE && Http.status == 200) {
                     var responseJsonObj = JSON.parse(Http.responseText);
                     const statusElem = document.getElementById("user-status-" + String(id));
                     if (responseJsonObj.IsOnline)
@@ -128,6 +138,8 @@
                         statusElem.src = "./assets/icons/png/offline.png";
                 }
             }
+        
+            Http.send();
         }
 
         function UpdateUsers(){

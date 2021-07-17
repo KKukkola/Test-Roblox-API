@@ -5,8 +5,15 @@ const url = require('url');
 const path = require('path');
 const { cwd } = require('process');
 
-// from electron
+const DB = require('./modules/DB');
+//import * as DB from './modules/DB';
+
+// ***************************************************** //
+
 const {app, BrowserWindow, Menu, ipcMain} = electron;
+
+// SET DB
+DB.SetPath(app.getPath('userData'));
 
 // SET ENV
 // process.env.NODE_ENV = 'production';
@@ -68,6 +75,8 @@ function createAddWindow(){
     });
 }
 
+// ***************************************************** //
+
 ipcMain.on('user:add', (event, arg) => {
     mainWindow.webContents.send('user:add', arg);
     addWindow.close();
@@ -81,8 +90,14 @@ ipcMain.on('app:minimize', (event, arg) => {
     mainWindow.minimize();
 })
 
-// Create menu template
-// In Electron, menu is just an array
+ipcMain.handle('DB:InsertID', async (e, id) => {
+    const result = await DB.InsertID(id);
+    return result;
+})
+
+// ***************************************************** //
+// Create menu template - just an array
+
 const mainMenuTemplate = [
     {
         label:'File',

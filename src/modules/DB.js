@@ -4,16 +4,29 @@ const electron = require('electron');
 
 const {app} = electron;
 
+var userdata;
+
 //***********************************************//
 
-export function InsertID(id){
+exports.SetPath = function(path){
+    console.log("setting DB path to: " + path);
+    userdata  = path;
+}
+
+exports.GetPath = function(){
+    return userdata;
+}
+
+exports.InsertID = function(id){
+    console.log("TODO: DB.InsertID");
+
+    return true;
+}
+
+exports.RemoveID = function(id){
 
 }
 
-export function RemoveID(id){
-
-}
-
-export function GetIDs(){
+exports.GetIDs = function() {
 
 }
