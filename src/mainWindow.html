@@ -15,6 +15,7 @@
             <div class="user-name">
                 waiting..
             </div>
+            <button class="unwatch-btn">unwatch</button>
         </div>
     </template>
 
@@ -74,14 +75,16 @@
             const title = instance.querySelector('.user-id');
             const name = instance.querySelector('.user-name');
             const status = instance.querySelector('.user-status');
+            const unwatchBtn = instance.querySelector('.unwatch-btn');
 
             title.id = "user-id-" + String(id);
             name.id = "user-name-" + String(id);
             status.id = "user-status-" + String(id);
+            unwatchBtn.dataset.userid = id;
 
             div_users.appendChild(instance);
 
-            return {id:id, title:title, name:name, status:status};
+            return {id:id, title:title, name:name, status:status, unwatchBtn:unwatchBtn};
         }
 
         function TryUpdateUserTemplate(tmp, onSuccess) {
@@ -104,6 +107,7 @@
         function InitializeUserTemplate(tmp, response) {
             tmp.title.innerHTML = tmp.id;
             tmp.name.innerHTML = response.name;
+            tmp.unwatchBtn.onclick = ClickUnwatch;
             usersList.push({id:tmp.id});
             UpdateUser(tmp.id);
         }
@@ -168,6 +172,13 @@
 
         setInterval(UpdateUsers, 2000);
     
+        //***************************************************
+        
+        function ClickUnwatch(e) {
+            console.log(e.target.dataset.userid, "clicked");
+        }
+
+
     </script>
     
 </body>
