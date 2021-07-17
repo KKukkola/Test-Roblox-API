@@ -29,18 +29,29 @@ exports.GetPath = function(){
 }
 
 exports.InsertID = function(id){
-    fs.appendFile(path.join(userdata + '/user_ids.txt'), String(id) + ',', function(err) {
+    const filePath = userdata + '/user_ids.txt';
+
+    fs.appendFile(filePath, String(id) + ',', function(err) {
         if (err) throw err;
         console.log("Inserted an ID!");
     });
-
-    console.log("id inserted!");
 
     return true;
 }
 
 exports.RemoveID = function(id){
 
+}
+
+exports.HasID = function(id) {
+    const filePath = userdata + '/user_ids.txt';
+
+    if (!fs.existsSync(filePath))
+        return false;
+    
+    const ids = fs.readFileSync(filePath, {encoding:'utf8', flag:'r'});
+    const result = ids.match(String(id)) != null;
+    return result;
 }
 
 exports.GetIDs = function() {

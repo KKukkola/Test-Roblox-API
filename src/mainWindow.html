@@ -96,19 +96,23 @@
         })
 
         ipcRenderer.on('update', function(e, item){
-            const Http = new XMLHttpRequest();
-            // 107904089 54374400
-            const url = 'https://api.roblox.com/users/107904089/onlinestatus/';
-            Http.open("GET", url);
-            Http.send();
-            Http.onreadystatechange = (e) => {
-                console.log('http state change');
-                console.log(Http.readyState, Http.status);
-                if (Http.readyState == 4 && Http.status == 200) {
-                    var responseJsonObj = JSON.parse(Http.responseText);
-                    console.log(responseJsonObj);
-                }
-            }
+            const id = 107904089;
+            ipcRenderer.invoke('DB:HasID', id).then((result) => {
+                console.log(result);
+            })
+            // const Http = new XMLHttpRequest();
+            // // 107904089 54374400
+            // const url = 'https://api.roblox.com/users/107904089/onlinestatus/';
+            // Http.open("GET", url);
+            // Http.send();
+            // Http.onreadystatechange = (e) => {
+            //     console.log('http state change');
+            //     console.log(Http.readyState, Http.status);
+            //     if (Http.readyState == 4 && Http.status == 200) {
+            //         var responseJsonObj = JSON.parse(Http.responseText);
+            //         console.log(responseJsonObj);
+            //     }
+            // }
         });
 
         //***************************************************
