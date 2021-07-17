@@ -100,6 +100,11 @@ ipcMain.handle('DB:HasID', async (e, id) => {
     return result;
 })
 
+ipcMain.handle('DB:GetIDs', async (e, id) => {
+    const result = await DB.GetIDs();
+    return result;
+})
+
 // ***************************************************** //
 // Create menu template - just an array
 

@@ -55,5 +55,12 @@ exports.HasID = function(id) {
 }
 
 exports.GetIDs = function() {
+    const filePath = userdata + '/user_ids.txt';
 
+    if (!fs.existsSync(filePath))
+        return [];
+    
+    const ids = fs.readFileSync(filePath, {encoding:'utf8', flag:'r'});
+    const result = ids.split(',');
+    return result;
 }
