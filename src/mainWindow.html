@@ -86,9 +86,9 @@
                     
                     UpdateUser(id);
 
-                    ipcRenderer.invoke('DB:InsertID', id).then((result) =>{
-                        console.log("ipc child process got result: ", result);
-                    })
+                    ipcRenderer.invoke('DB:InsertID', id);//.then((result) =>{
+                    //     console.log("ipc child process got result: ", result);
+                    // })
                 }
             }
             Http.send();
