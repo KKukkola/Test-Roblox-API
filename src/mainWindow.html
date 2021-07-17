@@ -122,13 +122,17 @@
 
         //***************************************************
 
-        ipcRenderer.invoke('DB:GetIDs', null).then((result) => {
-            console.log(result);
+        function RefreshUsers() {
+            usersList = [];
+            div_users.innerHTML = "";
+
+            ipcRenderer.invoke('DB:GetIDs', null).then((result) => {
             result.forEach((id) => {
-                let tmp = NewUserTemplate(id);
-                TryUpdateUserTemplate(tmp);
+                    let tmp = NewUserTemplate(id);
+                    TryUpdateUserTemplate(tmp);
+                })
             })
-        })
+        }
 
         //***************************************************
         // 107904089 54374400
@@ -170,12 +174,19 @@
             });
         }
 
+        RefreshUsers();
         setInterval(UpdateUsers, 2000);
     
         //***************************************************
         
         function ClickUnwatch(e) {
-            console.log(e.target.dataset.userid, "clicked");
+            const id = e.target.dataset.userid;
+            ipcRenderer.invoke('DB:RemoveID', id).then((result) => {
+                if (result == true)
+                    RefreshUsers();
+                else
+                    console.log("DB:Remove returned false!");
+            })
         }
 
 

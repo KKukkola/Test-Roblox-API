@@ -95,6 +95,11 @@ ipcMain.handle('DB:InsertID', async (e, id) => {
     return result;
 })
 
+ipcMain.handle('DB:RemoveID', async (e, id) => {
+    const result = await DB.RemoveID(id);
+    return result;
+})
+
 ipcMain.handle('DB:HasID', async (e, id) => {
     const result = await DB.HasID(id);
     return result;

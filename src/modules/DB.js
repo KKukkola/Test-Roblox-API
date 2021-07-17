@@ -40,7 +40,18 @@ exports.InsertID = function(id){
 }
 
 exports.RemoveID = function(id){
+    const filePath = userdata + '/user_ids.txt';
 
+    if (!fs.existsSync(filePath))
+        return false;
+
+    const ids = fs.readFileSync(filePath, {encoding:'utf8', flag:'r'});
+    const new_ids = ids.replace(String(id) + ',', "");
+    fs.writeFile(filePath, new_ids, (err) => {
+        if (err) throw err;
+    });
+
+    return true;
 }
 
 exports.HasID = function(id) {
