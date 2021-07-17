@@ -97,7 +97,8 @@
 
         ipcRenderer.on('update', function(e, item){
             const Http = new XMLHttpRequest();
-            const url = 'https://api.roblox.com/users/54374400/onlinestatus/';
+            // 107904089 54374400
+            const url = 'https://api.roblox.com/users/107904089/onlinestatus/';
             Http.open("GET", url);
             Http.send();
             Http.onreadystatechange = (e) => {
@@ -132,8 +133,18 @@
                 } else if (Http.readyState == XMLHttpRequest.DONE && Http.status == 200) {
                     var responseJsonObj = JSON.parse(Http.responseText);
                     const statusElem = document.getElementById("user-status-" + String(id));
-                    if (responseJsonObj.IsOnline)
-                        statusElem.src = "./assets/icons/png/onweb.png";
+                    if (responseJsonObj.IsOnline) {
+                        if (responseJsonObj.PresenceType == 1) {
+                            statusElem.src = "./assets/icons/png/onweb.png";
+                        } else if (responseJsonObj.PresenceType == 2) {
+                            statusElem.src = "./assets/icons/png/ingame.png";
+                        } else if (responseJsonObj.PresenceType == 3) {
+                            statusElem.src = "./assets/icons/png/instudio.png";
+                        } else {
+                            console.log('unknown');
+                            statusElem.src = "./assets/icons/png/offline.png";
+                        }
+                    }
                     else
                         statusElem.src = "./assets/icons/png/offline.png";
                 }
