@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
 
     <template id="user-template">
-        <div>
+        <div class="holder">
             <img class="user-status" src="" alt="status" ></img>
             <div class="user-id">
                 waiting..
@@ -36,14 +36,15 @@
             </ul>
         </div>
     </nav>
-    <div id="users-div">
+
+    <ul id="users-ul" class="double">
         
-    </div>
+    </ul>
     
     <script>
         const electron = require('electron');
         const {app, ipcRenderer} = electron; 
-        const div_users = document.getElementById('users-div');
+        const div_users = document.getElementById('users-ul');
         const user_template = document.getElementById('user-template');
         
         let usersList = [];
@@ -102,15 +103,18 @@
             const name = instance.querySelector('.user-name');
             const status = instance.querySelector('.user-status');
             const unwatchBtn = instance.querySelector('.unwatch-btn');
+            const holder = instance.querySelector('.holder');
+            const li = document.createElement('li');
+            li.className = "user-item";
 
             title.id = "user-id-" + String(id);
             name.id = "user-name-" + String(id);
             status.id = "user-status-" + String(id);
             unwatchBtn.dataset.userid = id;
 
-            div_users.appendChild(instance);
-
-            return {id:id, title:title, name:name, status:status, unwatchBtn:unwatchBtn};
+            li.appendChild(instance);
+            div_users.appendChild(li);
+            return {id:id, title:title, name:name, status:status, unwatchBtn:unwatchBtn, holder:holder};
         }
 
         function TryUpdateUserTemplate(tmp, onSuccess) {
@@ -134,7 +138,7 @@
             tmp.title.innerHTML = tmp.id;
             tmp.name.innerHTML = response.name;
             tmp.unwatchBtn.onclick = ClickUnwatch;
-            
+            tmp.status.addEventListener('click', ClickStatus);
             const userObj = {
                 id:tmp.id,
                 lastPresence:-1,
@@ -217,7 +221,7 @@
             userObj.lastTime = [hour, minute, second];
             
         }
-        
+
         function UpdateUser(id, userObj){
             const Http = new XMLHttpRequest();
             const url = `https://api.roblox.com/users/${id}/onlinestatus/`;
@@ -262,6 +266,10 @@
                 else
                     console.log("DB:Remove returned false!");
             })
+        }
+
+        function ClickStatus(e) {
+            console.log("status clicked!");
         }
 
 

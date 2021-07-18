@@ -5,6 +5,19 @@ ul {
     padding: 0px;
 }
 
+ul.double {
+    column-count: 3;
+    column-rule: 1px solid lightblue;
+
+}
+
+li.user-item {
+    break-inside: avoid-column;
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgb(14, 24, 24);
+}
+
 div.list-item {
     display: flex;
     align-items:center;

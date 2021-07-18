@@ -150,10 +150,6 @@ ipcMain.handle('storage:LogDate', async (e, obj) => {
     if (!cData[obj.month][obj.day])
         cData[obj.month][obj.day] = [];
     
-    // curr_presence
-    // curr_seconds
-    // last_presence
-    // diff_seconds
     cData[obj.month][obj.day].push({
         curr_presence:obj.curr_presence,
         curr_seconds:obj.curr_seconds,
