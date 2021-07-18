@@ -141,10 +141,22 @@ ipcMain.handle('DB:GetIDs', async (e, id) => {
 // ***************************************************** //
 
 ipcMain.handle('storage:LogDate', async (e, obj) => {
-    console.log(obj); 
-    //cData = storage.getSync(obj.id);
+    cData = storage.getSync(obj.id);
+    console.log("current data:", cData);
     
-    return false;
+    if (!cData[obj.month])
+        cData[obj.month] = {};
+    if (!cData[obj.month][obj.day])
+        cData[obj.month][obj.day] = [];
+    
+    cData[obj.month][obj.day].push({
+        presence:obj.presence, 
+        hour:obj.hour, minute:obj.minute, second:obj.second
+    })
+
+    storage.set(obj.id, cData);
+
+    return true;
 })
 
 // ***************************************************** //
