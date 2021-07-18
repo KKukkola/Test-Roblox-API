@@ -64,10 +64,20 @@
         })
 
         ipcRenderer.on('update', function(e, item){
-            const id = 107904089;
-            ipcRenderer.invoke('DB:GetIDs', null).then((result) => {
-                console.log(result);
-            })
+            const ids = [107904089,54374400,90624142];
+            const url_ext = ids.toString().replaceAll(',','&userIds=');
+            
+            // Get presence of multiple users
+            // some reason no work idk why
+
+            const Http = new XMLHttpRequest();
+            let url = "https://presence.roblox.com/v1/presence/users";
+            Http.open("POST", url);
+            //Http.setRequestHeader('Content-Type', 'application/json');
+            //Http.setRequestHeader('Accept', 'application/json');
+            Http.onreadystatechange = (e) => {};
+            Http.send({"userIds": [197231978]});
+                        
         });
 
         function NewUserTemplate(id) {
@@ -175,7 +185,7 @@
         }
 
         RefreshUsers();
-        setInterval(UpdateUsers, 2000);
+        setInterval(UpdateUsers, 3000);
     
         //***************************************************
         
