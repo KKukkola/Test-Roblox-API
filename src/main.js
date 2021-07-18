@@ -142,6 +142,7 @@ ipcMain.handle('DB:GetIDs', async (e, id) => {
 
 ipcMain.handle('storage:LogDate', async (e, obj) => {
     cData = storage.getSync(obj.id);
+    console.log("got key: ", obj.id);
     console.log("current data:", cData);
     
     if (!cData[obj.month])
@@ -149,14 +150,24 @@ ipcMain.handle('storage:LogDate', async (e, obj) => {
     if (!cData[obj.month][obj.day])
         cData[obj.month][obj.day] = [];
     
+    // curr_presence
+    // curr_seconds
+    // last_presence
+    // diff_seconds
     cData[obj.month][obj.day].push({
-        presence:obj.presence, 
-        hour:obj.hour, minute:obj.minute, second:obj.second
+        curr_presence:obj.curr_presence,
+        curr_seconds:obj.curr_seconds,
+        last_presence:obj.last_presence, 
+        diff_seconds:obj.diff_seconds
     })
 
     storage.set(obj.id, cData);
 
     return true;
+})
+
+ipcMain.handle('storage:Clear', async (e, obj) => {
+    storage.clear();
 })
 
 // ***************************************************** //

@@ -66,18 +66,20 @@
         ipcRenderer.on('update', function(e, item){
             
             const date = new Date();
-            const [month, day, year]       = [date.getMonth(), date.getDate(), date.getFullYear()];
+            const [month, day, year]       = [date.getMonth()+1, date.getDate(), date.getFullYear()];
             const [hour, minute, second] = [date.getHours(), date.getMinutes(), date.getSeconds()];
             
             //console.log(month, day, year);
             //console.log(hour, minute, second);
 
-            ipcRenderer.invoke('storage:LogDate', {
-                id:"app",
-                presence:"1",
-                month:month.toString(), day:day.toString(), year:year.toString(),
-                hour:hour.toString(), minute:minute.toString(), second:second.toString()
-            });
+            // ipcRenderer.invoke('storage:LogDate', {
+            //     id:"app",
+            //     presence:"1",
+            //     month:month.toString(), day:day.toString(), year:year.toString(),
+            //     hour:hour.toString(), minute:minute.toString(), second:second.toString()
+            // });
+            console.log("cleared storage");
+            ipcRenderer.invoke('storage:Clear');
             // const ids = [107904089,54374400,90624142];
             // const url_ext = ids.toString().replaceAll(',','&userIds=');
             
@@ -132,8 +134,15 @@
             tmp.title.innerHTML = tmp.id;
             tmp.name.innerHTML = response.name;
             tmp.unwatchBtn.onclick = ClickUnwatch;
-            usersList.push({id:tmp.id});
-            UpdateUser(tmp.id);
+            
+            const userObj = {
+                id:tmp.id,
+                lastPresence:-1,
+                lastTime:[-1,-1,-1]
+            };
+
+            usersList.push(userObj);
+            UpdateUser(tmp.id, userObj);
         }
 
         //***************************************************
@@ -161,7 +170,55 @@
         //***************************************************
         // 107904089 54374400 90624142
 
-        function UpdateUser(id){
+        function SrcFromPresence(thisPresence) {
+            let src = 0;
+            if (thisPresence == 0) {
+                src = "./assets/icons/png/offline.png";
+            } else if (thisPresence == 1) {
+                src = "./assets/icons/png/onweb.png";
+            } else if (thisPresence == 2) {
+                src = "./assets/icons/png/ingame.png";
+            } else if (thisPresence == 3) {
+                src = "./assets/icons/png/instudio.png";
+            } else {
+                console.log('unknown');
+                src = "./assets/icons/png/offline.png";
+            }
+            return src;
+        }
+
+        function OnPresenceChanged(id, userObj, thisPresence) {
+            console.log("presence changed! / start");
+            var date = new Date();
+            const [month, day] = [date.getMonth()+1, date.getDate()];
+            const [hour, minute, second] = [date.getHours(), date.getMinutes(), date.getSeconds()];
+            const curr_seconds = hour*60*60 + minute*60 + second;
+
+            let length_sec = 0;
+            if (userObj.lastTime[1] != -1) {
+                let last_length_sec = userObj.lastTime[0]*60*60 + userObj.lastTime[1]*60 + userObj.lastTime[2];
+                length_sec = curr_seconds - last_length_sec;
+                if (length_sec < 0) { length_sec = (curr_seconds + 86400) - last_length_sec }
+            }
+            
+            ipcRenderer.invoke('storage:LogDate', {
+                id:id,
+                month:month.toString(),
+                day:day.toString(),
+                // saves this data as an object in storage
+                curr_seconds:curr_seconds,
+                curr_presence:thisPresence,
+                last_presence:userObj.lastPresence,
+                diff_seconds:length_sec,
+                // **
+            });
+
+            userObj.lastPresence = thisPresence;
+            userObj.lastTime = [hour, minute, second];
+            
+        }
+        
+        function UpdateUser(id, userObj){
             const Http = new XMLHttpRequest();
             const url = `https://api.roblox.com/users/${id}/onlinestatus/`;
             Http.open("GET", url);
@@ -172,20 +229,14 @@
                 } else if (Http.readyState == XMLHttpRequest.DONE && Http.status == 200) {
                     var responseJsonObj = JSON.parse(Http.responseText);
                     const statusElem = document.getElementById("user-status-" + String(id));
-                    if (responseJsonObj.IsOnline) {
-                        if (responseJsonObj.PresenceType == 1) {
-                            statusElem.src = "./assets/icons/png/onweb.png";
-                        } else if (responseJsonObj.PresenceType == 2) {
-                            statusElem.src = "./assets/icons/png/ingame.png";
-                        } else if (responseJsonObj.PresenceType == 3) {
-                            statusElem.src = "./assets/icons/png/instudio.png";
-                        } else {
-                            console.log('unknown');
-                            statusElem.src = "./assets/icons/png/offline.png";
-                        }
+                    const thisPresence = responseJsonObj.PresenceType;
+                    
+                    statusElem.src = SrcFromPresence(thisPresence);
+                    
+                    if (userObj.lastPresence == -1 || userObj.lastPresence != thisPresence) {
+                        OnPresenceChanged(id, userObj, thisPresence);
                     }
-                    else
-                        statusElem.src = "./assets/icons/png/offline.png";
+
                 }
             }
         
@@ -193,13 +244,13 @@
         }
 
         function UpdateUsers(){
-            usersList.forEach((userObj) => {
-                UpdateUser(userObj.id);
+            usersList.forEach((userObj) => { 
+                UpdateUser(userObj.id, userObj);
             });
         }
 
         RefreshUsers();
-        setInterval(UpdateUsers, 3000);
+        setInterval(UpdateUsers, 5000);
     
         //***************************************************
         
