@@ -33,7 +33,6 @@ exports.InsertID = function(id){
 
     fs.appendFile(filePath, String(id) + ',', function(err) {
         if (err) throw err;
-        console.log("Inserted an ID!");
     });
 
     return true;
@@ -47,7 +46,7 @@ exports.RemoveID = function(id){
 
     const ids = fs.readFileSync(filePath, {encoding:'utf8', flag:'r'});
     const new_ids = ids.replace(String(id) + ',', "");
-    fs.writeFile(filePath, new_ids, (err) => {
+    fs.writeFileSync(filePath, new_ids, (err) => {
         if (err) throw err;
     });
 
