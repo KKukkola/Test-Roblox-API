@@ -3,6 +3,7 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
+const storage = require("electron-json-storage");
 const { cwd } = require('process');
 
 const DB = require('./modules/DB');
@@ -48,6 +49,31 @@ app.on('ready', function(){
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     //Insert menu
     Menu.setApplicationMenu(mainMenu);
+
+    /*
+    // so i need what time it is 00:00 - 23:59
+    // and what the date is MM:DD
+    
+    id = {
+        July: {
+            15: {
+                {time:0,presence},{time:0,presence}
+            }
+            16: {
+
+            }
+            17: {
+
+            }
+            18: {
+
+            }
+            19: {
+
+            }
+        }
+    }
+    */
 })
 
 function createAddWindow(){
@@ -90,6 +116,8 @@ ipcMain.on('app:minimize', (event, arg) => {
     mainWindow.minimize();
 })
 
+// ***************************************************** //
+
 ipcMain.handle('DB:InsertID', async (e, id) => {
     const result = await DB.InsertID(id);
     return result;
@@ -108,6 +136,15 @@ ipcMain.handle('DB:HasID', async (e, id) => {
 ipcMain.handle('DB:GetIDs', async (e, id) => {
     const result = await DB.GetIDs();
     return result;
+})
+
+// ***************************************************** //
+
+ipcMain.handle('storage:LogDate', async (e, obj) => {
+    console.log(obj); 
+    //cData = storage.getSync(obj.id);
+    
+    return false;
 })
 
 // ***************************************************** //
