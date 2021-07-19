@@ -47,7 +47,7 @@
         <label>fromHour</label>
         <input class="timeline-input" type="text" value="7" id="timeline-from"> 
         <label>toHour</label>
-        <input class="timeline-input" type="text" value="22" id="timeline-to"> 
+        <input class="timeline-input" type="text" value="23" id="timeline-to"> 
         <label>day[TODO]</label>
         <input class="timeline-input" type="text" id="timeline-day"> 
 
@@ -83,6 +83,19 @@
                     });
                 }
             })
+        })
+
+        ipcRenderer.on('log-current', function(event) {
+            // log what the current statuses are for the watched
+            console.log('doing log-current');
+
+            usersList.forEach((userObj) => { 
+                UpdateUser(userObj.id, userObj, true);
+            });
+
+            console.log("log-current is now done");
+            // tell the main process it's done
+            event.sender.send('log-current-done', true);
         })
 
         ipcRenderer.on('update', function(e, item){
@@ -173,9 +186,12 @@
         //***************************************************
 
         function RefreshUsers() {
+            
+            // Clear the list
             usersList = [];
             div_users.innerHTML = "";
 
+            // Redraw it
             ipcRenderer.invoke('DB:GetIDs', null).then((result) => {
             result.forEach((id) => {
                     let tmp = NewUserTemplate(id);
@@ -218,6 +234,7 @@
                 if (length_sec < 0) { length_sec = (curr_seconds + 86400) - last_length_sec }
             }
             
+            console.log('doing storage:LogDate')
             ipcRenderer.invoke('storage:LogDate', {
                 id:id,
                 month:month.toString(),
@@ -235,7 +252,7 @@
             
         }
 
-        function UpdateUser(id, userObj){
+        function UpdateUser(id, userObj, doLog=false){
             const Http = new XMLHttpRequest();
             const url = `https://api.roblox.com/users/${id}/onlinestatus/`;
             Http.open("GET", url);
@@ -251,13 +268,12 @@
                     
                     statusElem.src = SrcFromPresence(thisPresence);
                     
-                    if (userObj.lastPresence == -1 || userObj.lastPresence != thisPresence) {
+                    if (userObj.lastPresence == -1 || userObj.lastPresence != thisPresence || doLog) {
                         OnPresenceChanged(id, userObj, thisPresence);
                     }
 
                 }
             }
-        
             Http.send();
         }
 

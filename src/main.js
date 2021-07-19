@@ -11,7 +11,7 @@ const DB = require('./modules/DB');
 
 // ***************************************************** //
 
-const {app, BrowserWindow, Menu, ipcMain} = electron;
+const {app, BrowserWindow, Menu, ipcMain, globalShortcut} = electron;
 
 // SET DB
 DB.SetPath(app.getPath('userData'));
@@ -42,7 +42,7 @@ app.on('ready', function(){
     }))
     // Quit app when closed
     mainWindow.on('closed', function(){
-        app.quit();
+        closeApp();
     })
 
     // Build menu from template
@@ -50,31 +50,20 @@ app.on('ready', function(){
     //Insert menu
     Menu.setApplicationMenu(mainMenu);
 
-    /*
-    // so i need what time it is 00:00 - 23:59
-    // and what the date is MM:DD
-    
-    id = {
-        July: {
-            15: {
-                {time:0,presence},{time:0,presence}
-            }
-            16: {
-
-            }
-            17: {
-
-            }
-            18: {
-
-            }
-            19: {
-
-            }
-        }
-    }
-    */
+    // Overwrite the shortcut for refresh
+    globalShortcut.register('CommandOrControl+R', function() {
+        mainWindow.webContents.send('log-current');
+        ipcMain.once('log-current-done', async (event, result) => {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            mainWindow.reload();
+        })
+        //mainWindow.reload()
+    })
 })
+
+function closeApp(){
+    app.quit();
+}
 
 function createAddWindow(){
     // Create new window
@@ -109,7 +98,7 @@ ipcMain.on('user:add', (event, arg) => {
 })
 
 ipcMain.on('app:close', (event, arg) => {
-    app.quit();
+    closeApp();
 })
 
 ipcMain.on('app:minimize', (event, arg) => {
@@ -203,7 +192,7 @@ const mainMenuTemplate = [
             label: 'Quit',
             accelerator: process.platform == 'darwin' ? 'Command+Q' : "Ctrl+Q",
             click(){
-                app.quit(); // quits app
+                closeApp(); // quits app
             }
         }
         ]
