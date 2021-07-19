@@ -55,7 +55,8 @@
         const {app, ipcRenderer} = electron; 
         const div_users = document.getElementById('users-ul');
         const user_template = document.getElementById('user-template');
-        
+        const timeline = document.getElementById('timeline');
+
         let usersList = [];
 
         //***************************************************
@@ -271,8 +272,47 @@
         }
 
         function ClickStatus(e) {
-            console.log(e.target.parentElement.dataset.userid);
+            const userid = e.target.parentElement.dataset.userid;
+            timeline.innerHTML = "";
+            ipcRenderer.invoke('storage:Get', userid).then((data) => {
+                console.log("TODO: display the data");
 
+                let date = new Date();
+                const [month, day] = [date.getMonth() + 1, date.getDate()];
+
+                let maxWidth = timeline.clientWidth;
+                let rect = timeline.getBoundingClientRect();
+                let maxSeconds = 86400;
+                data[month.toString()][day.toString()].forEach(timeObj => {
+                    let curr_presence = timeObj.curr_presence;
+                    let curr_seconds = timeObj.curr_seconds;
+                    let last_presence = timeObj.lastPresence; 
+                    let diff_seconds = timeObj.diff_seconds;
+                    
+                    // the position of the new element is (curr_seconds/maxSeconds * maxWidth)
+                    var div_point = document.createElement('div');
+                    div_point.className = "point";
+                    div_point.style.left = String(timeObj.curr_seconds/maxSeconds * 100)+'%';
+                    div_point.style.top = '50%';
+
+                    switch(curr_presence) {
+                        case 0:
+                            div_point.style.background = "gray";
+                            break;
+                        case 1:
+                            div_point.style.background = "blue";
+                            break;
+                        case 2:
+                            div_point.style.background = "green";
+                            break;
+                        case 3:
+                            div_point.style.background = "orange";
+                            break;
+                    }
+                    
+                    timeline.appendChild(div_point);
+                });
+            })
         }
 
     </script>

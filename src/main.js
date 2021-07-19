@@ -162,6 +162,11 @@ ipcMain.handle('storage:LogDate', async (e, obj) => {
     return true;
 })
 
+ipcMain.handle('storage:Get', async (e, key) => {
+    let data = storage.getSync(key);
+    return data;
+})
+
 ipcMain.handle('storage:Clear', async (e, obj) => {
     storage.clear();
 })
