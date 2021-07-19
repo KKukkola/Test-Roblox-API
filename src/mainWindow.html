@@ -43,6 +43,15 @@
         <ul id="users-ul" class="double">
         
         </ul>
+
+        <label>fromHour</label>
+        <input class="timeline-input" type="text" value="7" id="timeline-from"> 
+        <label>toHour</label>
+        <input class="timeline-input" type="text" value="22" id="timeline-to"> 
+        <label>day[TODO]</label>
+        <input class="timeline-input" type="text" id="timeline-day"> 
+
+
         <div id="timeline">
             here is the div
         </div>
@@ -56,6 +65,8 @@
         const div_users = document.getElementById('users-ul');
         const user_template = document.getElementById('user-template');
         const timeline = document.getElementById('timeline');
+        const t_from = document.getElementById('timeline-from');
+        const t_to = document.getElementById('timeline-to');
 
         let usersList = [];
 
@@ -275,42 +286,98 @@
             const userid = e.target.parentElement.dataset.userid;
             timeline.innerHTML = "";
             ipcRenderer.invoke('storage:Get', userid).then((data) => {
-                console.log("TODO: display the data");
 
                 let date = new Date();
                 const [month, day] = [date.getMonth() + 1, date.getDate()];
 
-                let maxWidth = timeline.clientWidth;
-                let rect = timeline.getBoundingClientRect();
+                const secPerHour = 3600;
+
+                let fromHour = 0;
+                let toHour = 24;
+                if (t_from.value != "")
+                    fromHour = parseInt(t_from.value);
+                if (t_to.value != "")
+                    toHour = parseInt(t_to.value);
+                const numHours = toHour - fromHour;
+                const midHour = toHour - numHours / 2;
+
+                // draw hour lines
+                for (let i = 0; i < numHours; i++) {
+                    const div_line = document.createElement('div');
+                    div_line.className = "line";
+                    div_line.style.left = String(i/numHours * 100) + '%';
+                    div_line.innerHTML = i+fromHour;
+                    timeline.appendChild(div_line);
+                }
+
                 let maxSeconds = 86400;
                 data[month.toString()][day.toString()].forEach(timeObj => {
                     let curr_presence = timeObj.curr_presence;
                     let curr_seconds = timeObj.curr_seconds;
-                    let last_presence = timeObj.lastPresence; 
+                    let last_presence = timeObj.last_presence;
                     let diff_seconds = timeObj.diff_seconds;
                     
-                    // the position of the new element is (curr_seconds/maxSeconds * maxWidth)
+                    // Create a Point for the current presence
+
                     var div_point = document.createElement('div');
                     div_point.className = "point";
-                    div_point.style.left = String(timeObj.curr_seconds/maxSeconds * 100)+'%';
-                    div_point.style.top = '50%';
 
+                    // position the element a % from the left
+                    let maxSeconds = secPerHour*numHours;
+                    let curSeconds = curr_seconds - (secPerHour*fromHour);
+                    div_point.style.left = String(curSeconds/maxSeconds * 100)+'%';
+                    
                     switch(curr_presence) {
                         case 0:
-                            div_point.style.background = "gray";
+                            div_point.style.background = "gray"; 
+                            div_point.style.top = '10%';
                             break;
                         case 1:
-                            div_point.style.background = "blue";
+                            div_point.style.background = "blue"; 
+                            div_point.style.top = '20%';
                             break;
                         case 2:
-                            div_point.style.background = "green";
+                            div_point.style.background = "green"; 
+                            div_point.style.top = '30%';
                             break;
                         case 3:
-                            div_point.style.background = "orange";
+                            div_point.style.background = "orange"; 
+                            div_point.style.top = '40%';
                             break;
                     }
                     
                     timeline.appendChild(div_point);
+
+                    // create a point for the last presence
+
+                    if (last_presence != -1 && diff_seconds > 0) {
+                        var div_bar = document.createElement('div');
+                        div_bar.className = "bar";
+                        div_bar.style.width = String(diff_seconds/maxSeconds * 100) + '%';
+                        div_bar.style.left = String((curSeconds-diff_seconds)/maxSeconds * 100) + '%';
+                        switch(last_presence) {
+                            case 0:
+                                div_bar.style.background = "gray"; 
+                                div_bar.style.top = '10%';
+                                break;
+                            case 1:
+                                div_bar.style.background = "blue"; 
+                                div_bar.style.top = '20%';
+                                break;
+                            case 2:
+                                div_bar.style.background = "green"; 
+                                div_bar.style.top = '30%';
+                                break;
+                            case 3:
+                                div_bar.style.background = "orange"; 
+                                div_bar.style.top = '40%';
+                                break;
+                            default:
+                                div_bar.style.background = "red"; 
+                                div_bar.style.top = '0%';
+                        }
+                        timeline.appendChild(div_bar);
+                    }
                 });
             })
         }

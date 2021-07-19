@@ -142,8 +142,8 @@ ipcMain.handle('DB:GetIDs', async (e, id) => {
 
 ipcMain.handle('storage:LogDate', async (e, obj) => {
     cData = storage.getSync(obj.id);
-    console.log("got key: ", obj.id);
-    console.log("current data:", cData);
+    // console.log("got key: ", obj.id);
+    // console.log("current data:", cData);
     
     if (!cData[obj.month])
         cData[obj.month] = {};
