@@ -1,3 +1,12 @@
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100%;
+    display:flex;
+    flex-direction:column;
+}
 
 ul {
     list-style-type: none;
@@ -6,9 +15,8 @@ ul {
 }
 
 ul.double {
-    column-count: 3;
+    column-count: 2;
     column-rule: 1px solid lightblue;
-
 }
 
 li.user-item {
@@ -34,6 +42,19 @@ li.bottom-most {
     margin-right: 5px;
     margin-left: 5px;
 }
+
+
+#page-body {
+    display:flex;
+    flex-direction:column;
+    flex:1 1 auto;
+}
+
+#timeline {
+    flex:1 1 auto;
+}
+
+/*              */
 
 #title-bar {
     height: 25px;

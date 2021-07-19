@@ -21,6 +21,7 @@
 
 </head>
 <body style="margin:0">
+    
     <nav>
         <div id="title-bar">
             <div id="title-text" class="left">ListTest</div>
@@ -37,9 +38,17 @@
         </div>
     </nav>
 
-    <ul id="users-ul" class="double">
+    <div id="page-body">
+
+        <ul id="users-ul" class="double">
         
-    </ul>
+        </ul>
+        <div id="timeline">
+            here is the div
+        </div>
+
+    </div>
+    
     
     <script>
         const electron = require('electron');
@@ -70,15 +79,6 @@
             const [month, day, year]       = [date.getMonth()+1, date.getDate(), date.getFullYear()];
             const [hour, minute, second] = [date.getHours(), date.getMinutes(), date.getSeconds()];
             
-            //console.log(month, day, year);
-            //console.log(hour, minute, second);
-
-            // ipcRenderer.invoke('storage:LogDate', {
-            //     id:"app",
-            //     presence:"1",
-            //     month:month.toString(), day:day.toString(), year:year.toString(),
-            //     hour:hour.toString(), minute:minute.toString(), second:second.toString()
-            // });
             console.log("cleared storage");
             ipcRenderer.invoke('storage:Clear');
             // const ids = [107904089,54374400,90624142];
@@ -111,6 +111,7 @@
             name.id = "user-name-" + String(id);
             status.id = "user-status-" + String(id);
             unwatchBtn.dataset.userid = id;
+            holder.dataset.userid = id;
 
             li.appendChild(instance);
             div_users.appendChild(li);
@@ -226,8 +227,9 @@
             const Http = new XMLHttpRequest();
             const url = `https://api.roblox.com/users/${id}/onlinestatus/`;
             Http.open("GET", url);
-            
-            Http.onreadystatechange = (e) => {
+            Http.setRequestHeader("samesite","Strict");
+
+            Http.onloadend = (e) => {
                 if (Http.status == 404) {
                     throw new Error(url + ' replied 404');
                 } else if (Http.readyState == XMLHttpRequest.DONE && Http.status == 200) {
@@ -269,9 +271,9 @@
         }
 
         function ClickStatus(e) {
-            console.log("status clicked!");
-        }
+            console.log(e.target.parentElement.dataset.userid);
 
+        }
 
     </script>
     
