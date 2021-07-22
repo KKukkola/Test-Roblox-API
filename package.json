@@ -1,15 +1,19 @@
 {
-  "name": "roblox-test",
+  "name": "roblox_activity_tracker",
   "version": "1.0.0",
-  "description": "interacting with the roblox api",
+  "description": "tracks user activity",
   "main": "src/main.js",
   "scripts": {
-    "test": "electron ."
+    "test": "electron .",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . roblox-activity-tracker --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/win/star.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Roblox Activity Tracker\"",    
+    "package-linux": "electron-packager . electron-tutorial-app --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --out=release-builds"
   },
   "author": "Noqk",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^13.1.6"
+    "electron": "^13.1.7",
+    "electron-packager": "^15.3.0"
   },
   "dependencies": {
     "electron-json-storage": "^4.5.0"
