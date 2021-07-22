@@ -9,11 +9,13 @@
     <template id="user-template">
         <div class="holder">
             <img class="user-status" src="" alt="status" ></img>
-            <div class="user-id">
-                waiting..
-            </div>
-            <div class="user-name">
-                waiting..
+            <div class="grow-block">
+                <div class="user-id">
+                    waiting..
+                </div>
+                <div class="user-name">
+                    waiting..
+                </div>
             </div>
             <button class="unwatch-btn">unwatch</button>
         </div>
@@ -48,7 +50,7 @@
         <input class="timeline-input" type="text" value="7" id="timeline-from"> 
         <label>toHour</label>
         <input class="timeline-input" type="text" value="23" id="timeline-to"> 
-        <label>day[TODO]</label>
+        <label>day</label>
         <input class="timeline-input" type="text" id="timeline-day"> 
 
 
@@ -67,6 +69,7 @@
         const timeline = document.getElementById('timeline');
         const t_from = document.getElementById('timeline-from');
         const t_to = document.getElementById('timeline-to');
+        const t_day = document.getElementById('timeline-day');
 
         let usersList = [];
 
@@ -277,14 +280,22 @@
             Http.send();
         }
 
+        var currentUserIndex = 0;
         function UpdateUsers(){
-            usersList.forEach((userObj) => { 
+            let userObj = usersList[currentUserIndex];
+            if (userObj) {
                 UpdateUser(userObj.id, userObj);
-            });
+                currentUserIndex++;
+            } else {
+                currentUserIndex = 0;
+            }
+            //usersList.forEach((userObj) => { 
+            //    UpdateUser(userObj.id, userObj);
+            //});
         }
 
         RefreshUsers();
-        setInterval(UpdateUsers, 5000);
+        setInterval(UpdateUsers, 1500);
     
         //***************************************************
         
@@ -304,8 +315,9 @@
             ipcRenderer.invoke('storage:Get', userid).then((data) => {
 
                 let date = new Date();
-                const [month, day] = [date.getMonth() + 1, date.getDate()];
-
+                let [month, day] = [date.getMonth() + 1, date.getDate()];
+                if (t_day.value != "")
+                    day = parseInt(t_day.value);
                 const secPerHour = 3600;
 
                 let fromHour = 0;
