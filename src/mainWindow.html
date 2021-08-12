@@ -109,41 +109,37 @@
             
             console.log("cleared storage");
             ipcRenderer.invoke('storage:Clear');
-            // const ids = [107904089,54374400,90624142];
-            // const url_ext = ids.toString().replaceAll(',','&userIds=');
             
-            // // Get presence of multiple users
-            // // some reason no work idk why
-
-            // const Http = new XMLHttpRequest();
             // let url = "https://presence.roblox.com/v1/presence/users";
-            // Http.open("POST", url);
-            // //Http.setRequestHeader('Content-Type', 'application/json');
-            // //Http.setRequestHeader('Accept', 'application/json');
-            // Http.onreadystatechange = (e) => {};
-            // Http.send({"userIds": [197231978]});
-                        
+            
         });
 
+        // TODO: an object for the item that goes into the UsreObjs list
+        class UserObj {
+            constructor(id) {
+                const holder = user_template.content.firstElementChild.cloneNode(true);
+                this.id = id;
+                this.title = holder.querySelector('.user-id');
+                this.name = holder.querySelector('.user-name');
+                this.status = holder.querySelector('.user-status');
+                this.unwatchBtn = holder.querySelector('.unwatch-btn');
+                this.holder = holder;
+
+                this.title.id = "user-id-" + String(id);
+                this.name.id = "user-name-" + String(id);
+                this.status.id = "user-status-" + String(id);
+                this.unwatchBtn.dataset.userid = id;
+                this.holder.dataset.userid = id;
+                
+                const li = document.createElement('li');
+                li.className = "user-item";
+                li.appendChild(holder);
+                div_users.appendChild(li);
+            }
+        }
+
         function NewUserTemplate(id) {
-            const instance = document.importNode(user_template.content, true);
-            const title = instance.querySelector('.user-id');
-            const name = instance.querySelector('.user-name');
-            const status = instance.querySelector('.user-status');
-            const unwatchBtn = instance.querySelector('.unwatch-btn');
-            const holder = instance.querySelector('.holder');
-            const li = document.createElement('li');
-            li.className = "user-item";
-
-            title.id = "user-id-" + String(id);
-            name.id = "user-name-" + String(id);
-            status.id = "user-status-" + String(id);
-            unwatchBtn.dataset.userid = id;
-            holder.dataset.userid = id;
-
-            li.appendChild(instance);
-            div_users.appendChild(li);
-            return {id:id, title:title, name:name, status:status, unwatchBtn:unwatchBtn, holder:holder};
+            return new UserObj(id);
         }
 
         function TryUpdateUserTemplate(tmp, onSuccess) {
