@@ -80,7 +80,7 @@
                 if (result == true) {
                     console.log("athat id is alreaddy in here");
                 } else {
-                    let tmp = NewUserTemplate(id);
+                    let tmp = new UserObj(id);
                     TryUpdateUserTemplate(tmp, (tmp, response) => {
                         ipcRenderer.invoke('DB:InsertID', id);
                     });
@@ -114,7 +114,6 @@
             
         });
 
-        // TODO: an object for the item that goes into the UsreObjs list
         class UserObj {
             constructor(id) {
                 const holder = user_template.content.firstElementChild.cloneNode(true);
@@ -138,9 +137,9 @@
             }
         }
 
-        function NewUserTemplate(id) {
-            return new UserObj(id);
-        }
+        // function NewUserTemplate(id) {
+        //     return new UserObj(id);
+        // }
 
         function TryUpdateUserTemplate(tmp, onSuccess) {
             const Http = new XMLHttpRequest();
@@ -193,7 +192,7 @@
             // Redraw it
             ipcRenderer.invoke('DB:GetIDs', null).then((result) => {
             result.forEach((id) => {
-                    let tmp = NewUserTemplate(id);
+                    let tmp = new UserObj(id);
                     TryUpdateUserTemplate(tmp);
                 })
             })
