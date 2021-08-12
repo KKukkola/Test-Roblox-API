@@ -81,9 +81,7 @@
                     console.log("athat id is alreaddy in here");
                 } else {
                     let tmp = new UserObj(id);
-                    TryUpdateUserTemplate(tmp, (tmp, response) => {
-                        ipcRenderer.invoke('DB:InsertID', id);
-                    });
+                    tmp.init((e) => { ipcRenderer.invoke('DB:InsertID', id); })
                 }
             })
         })
@@ -93,7 +91,7 @@
             console.log('doing log-current');
 
             usersList.forEach((userObj) => { 
-                UpdateUser(userObj.id, userObj, true);
+                userObj.update(true);
             });
 
             console.log("log-current is now done");
@@ -102,17 +100,15 @@
         })
 
         ipcRenderer.on('update', function(e, item){
-            
             const date = new Date();
             const [month, day, year]       = [date.getMonth()+1, date.getDate(), date.getFullYear()];
             const [hour, minute, second] = [date.getHours(), date.getMinutes(), date.getSeconds()];
-            
             console.log("cleared storage");
             ipcRenderer.invoke('storage:Clear');
-            
             // let url = "https://presence.roblox.com/v1/presence/users";
-            
         });
+
+        //***********************************************************************************
 
         class UserObj {
             constructor(id) {
@@ -129,52 +125,68 @@
                 this.status.id = "user-status-" + String(id);
                 this.unwatchBtn.dataset.userid = id;
                 this.holder.dataset.userid = id;
+
+                this.lastPresence = -1;
+                this.lastTime = [-1,-1,-1];
                 
                 const li = document.createElement('li');
                 li.className = "user-item";
                 li.appendChild(holder);
                 div_users.appendChild(li);
             }
-        }
 
-        // function NewUserTemplate(id) {
-        //     return new UserObj(id);
-        // }
+            init(onSuccess) {
+                const Http = new XMLHttpRequest();
+                const url = `https://users.roblox.com/v1/users/${this.id}`;
+                Http.open("GET", url);
+                Http.onloadend = (e) => {
+                    if (Http.status == 404) {
+                        console.log(url + " replied 404");
+                    } else if (Http.readyState == 4 && Http.status == 200) {
+                        var responseJsonObj = JSON.parse(Http.responseText);
+                        
+                        this.title.innerHTML = this.id;
+                        this.name.innerHTML = responseJsonObj.name;
+                        this.unwatchBtn.onclick = ClickUnwatch;
+                        this.status.addEventListener('click', ClickStatus);
+                        usersList.push(this);
+                        this.update()
 
-        function TryUpdateUserTemplate(tmp, onSuccess) {
-            const Http = new XMLHttpRequest();
-            const url = `https://users.roblox.com/v1/users/${tmp.id}`;
-            Http.open("GET", url);
-            Http.onloadend = (e) => {
-                if (Http.status == 404) {
-                    console.log(url + " replied 404");
-                } else if (Http.readyState == 4 && Http.status == 200) {
-                    var responseJsonObj = JSON.parse(Http.responseText);
-                    InitializeUserTemplate(tmp, responseJsonObj);
-                    if (onSuccess)
-                        onSuccess(tmp, responseJsonObj);
+                        if (onSuccess)
+                            onSuccess(this, responseJsonObj);
+                    }
                 }
+                Http.send();
             }
-            Http.send();
+
+            update(doLog=false) {
+                const Http = new XMLHttpRequest();
+                const url = `https://api.roblox.com/users/${this.id}/onlinestatus/`;
+                Http.open("GET", url);
+                Http.setRequestHeader("samesite","Strict");
+
+                Http.onloadend = (e) => {
+                    if (Http.status == 404) {
+                        throw new Error(url + ' replied 404');
+                    } else if (Http.readyState == XMLHttpRequest.DONE && Http.status == 200) {
+                        var responseJsonObj = JSON.parse(Http.responseText);
+                        const statusElem = document.getElementById("user-status-" + String(this.id));
+                        const thisPresence = responseJsonObj.PresenceType;
+                        
+                        statusElem.src = SrcFromPresence(thisPresence);
+                        
+                        if (this.lastPresence == -1 || this.lastPresence != thisPresence || doLog) {
+                            OnPresenceChanged(this.id, this, thisPresence);
+                        }
+
+                    }
+                }
+                Http.send();
+            }
         }
 
-        function InitializeUserTemplate(tmp, response) {
-            tmp.title.innerHTML = tmp.id;
-            tmp.name.innerHTML = response.name;
-            tmp.unwatchBtn.onclick = ClickUnwatch;
-            tmp.status.addEventListener('click', ClickStatus);
-            const userObj = {
-                id:tmp.id,
-                lastPresence:-1,
-                lastTime:[-1,-1,-1]
-            };
+        //***********************************************************************************
 
-            usersList.push(userObj);
-            UpdateUser(tmp.id, userObj);
-        }
-
-        //***************************************************
-        
         function closeWindow(e){ ipcRenderer.send('app:close'); }
         function minimizeWindow(e){ ipcRenderer.send('app:minimize'); }
         
@@ -192,8 +204,8 @@
             // Redraw it
             ipcRenderer.invoke('DB:GetIDs', null).then((result) => {
             result.forEach((id) => {
-                    let tmp = new UserObj(id);
-                    TryUpdateUserTemplate(tmp);
+                    let o = new UserObj(id);
+                    o.init();
                 })
             })
         }
@@ -250,43 +262,15 @@
             
         }
 
-        function UpdateUser(id, userObj, doLog=false){
-            const Http = new XMLHttpRequest();
-            const url = `https://api.roblox.com/users/${id}/onlinestatus/`;
-            Http.open("GET", url);
-            Http.setRequestHeader("samesite","Strict");
-
-            Http.onloadend = (e) => {
-                if (Http.status == 404) {
-                    throw new Error(url + ' replied 404');
-                } else if (Http.readyState == XMLHttpRequest.DONE && Http.status == 200) {
-                    var responseJsonObj = JSON.parse(Http.responseText);
-                    const statusElem = document.getElementById("user-status-" + String(id));
-                    const thisPresence = responseJsonObj.PresenceType;
-                    
-                    statusElem.src = SrcFromPresence(thisPresence);
-                    
-                    if (userObj.lastPresence == -1 || userObj.lastPresence != thisPresence || doLog) {
-                        OnPresenceChanged(id, userObj, thisPresence);
-                    }
-
-                }
-            }
-            Http.send();
-        }
-
         var currentUserIndex = 0;
         function UpdateUsers(){
             let userObj = usersList[currentUserIndex];
             if (userObj) {
-                UpdateUser(userObj.id, userObj);
+                userObj.update();
                 currentUserIndex++;
             } else {
                 currentUserIndex = 0;
             }
-            //usersList.forEach((userObj) => { 
-            //    UpdateUser(userObj.id, userObj);
-            //});
         }
 
         RefreshUsers();
